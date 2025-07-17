@@ -6,17 +6,16 @@ const normalizePort = val => {
   var port = parseInt(val, 10);
 
   if (isNaN(port)) {
-    // named pipe
-    return val;
+    return val; // named pipe
   }
-
   if (port >= 0) {
-    // port number
-    return port;
+    return port; // port number
   }
-
   return false;
 };
+
+const port = normalizePort(process.env.PORT || "3000");  // ✅ moved here
+app.set("port", port);
 
 const onError = error => {
   if (error.syscall !== "listen") {
@@ -27,11 +26,9 @@ const onError = error => {
     case "EACCES":
       console.error(bind + " requires elevated privileges");
       process.exit(1);
-      break;
     case "EADDRINUSE":
       console.error(bind + " is already in use");
       process.exit(1);
-      break;
     default:
       throw error;
   }
@@ -42,9 +39,6 @@ const onListening = () => {
   const bind = typeof port === "string" ? "pipe " + port : "port " + port;
   debug("Listening on " + bind);
 };
-
-const port = normalizePort(process.env.PORT || "3000");
-app.set("port", port);
 
 const server = http.createServer(app);
 server.on("error", onError);

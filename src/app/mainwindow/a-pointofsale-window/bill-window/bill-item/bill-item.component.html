@@ -14,14 +14,23 @@
 
             <div class="field has-addons is-full" >
               <div class="control is-full" style="width: 100%;">
-                <input class="input" type="text" placeholder="Find drugs" [(ngModel)]="searchTerm">
+                <input #searchInput class="input" type="text" placeholder="Find drugs by name" [(ngModel)]="searchTerm" (input)="onSearchInputChange($event)">
               </div>
               <div class="control">
-                <a class="button is-primary">
+                <a class="button is-primary" (click)="onSearchEnter()">
                   Search
                 </a>
               </div>
+              <div class="control">
+                <a class="button" [ngClass]="{'is-info': barcodeReady, 'is-light': !barcodeReady}" (click)="onBarcodeButtonClick(searchInput)" title="Scan Barcode">
+                  <span class="icon">
+                    <i class="fas fa-barcode"></i>
+                  </span>
+                </a>
+              </div>
             </div>
+            <div *ngIf="barcodeSuccess" class="notification is-success is-light" style="margin-top:5px;">{{ barcodeSuccess }}</div>
+            <div *ngIf="barcodeError" class="notification is-danger is-light" style="margin-top:5px;">{{ barcodeError }}</div>
           </div>
         </div>
 

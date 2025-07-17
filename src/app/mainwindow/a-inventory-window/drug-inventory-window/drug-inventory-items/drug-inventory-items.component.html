@@ -8,7 +8,7 @@
 
       <div class="field has-addons is-full" >
         <div class="control is-full" style="width: 100%;">
-          <input class="input" type="text" placeholder="Find drugs by name" [(ngModel)]="searchTerm">
+          <input class="input" type="text" placeholder="Find drugs by name" [(ngModel)]="searchTerm" (input)="onSearchInputChange($event)">
         </div>
         <div class="control">
           <a class="button is-primary">
@@ -55,6 +55,7 @@
                     <td style="width: 12%;">Batch ID </td>
                     <td style="width: 20%;">Expire Date</td>
                     <td style="width: 12%;">Price</td>
+                    <td style="width: 16%;">Barcode</td>
                     <td ></td>
 
                   </thead>
@@ -65,6 +66,7 @@
                     <td >{{ inventory.batchId }}</td>
                     <td >{{ inventory.expireDate }} </td>
                     <td >{{ inventory.price }} </td>
+                    <td >{{ inventory.barcode }} </td>
 
                     <td class="level-right">
                       <a class="button is-small is-primary" style="font-weight: bold;margin-right: 1%;" [routerLink]="['/editi',inventory.id]">Edit </a>

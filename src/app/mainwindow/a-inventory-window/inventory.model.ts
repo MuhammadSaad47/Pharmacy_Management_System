@@ -6,5 +6,6 @@ export interface Inventory {
   batchId: string;
   expireDate: string;
   price: string;
+  barcode: string;
   imagePath: string;
 }

@@ -3,10 +3,23 @@
     Bill
   </p>
   <div class="panel-block ">
-    <div  style="height: 300px; width: 100%;">
-
-      <app-bill-item></app-bill-item>
-
+    <div  style="height: 300px; width: 100%; overflow-y: auto;">
+      <table class="table is-full" style="width:100%">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of items">
+            <td>{{ item.name }}</td>
+            <td>{{ item.price }}</td>
+            <td>1</td> <!-- Default quantity 1 for scanned items -->
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
   <div class="panel-block">

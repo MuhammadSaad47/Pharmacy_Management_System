@@ -19,6 +19,16 @@ router.post("",(req,res,next)=>{
     salesId : createdSales._id
   });
 
+  }).catch(err => {
+    console.error('Signup error:', err);
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.email) {
+      // Duplicate email error
+      return res.status(400).json({ message: "Email already exists." });
+    }
+    res.status(500).json({
+      error: err,
+      message: err.message || "Signup failed"
+    });
   });
 
   });
@@ -31,7 +41,7 @@ router.post("",(req,res,next)=>{
                                     }},
                                     { "$group": {
                                         "_id": "$month",
-                                        "total": { "$sum": { $toDouble: "$paidAmount" }}
+                                        "total": { "$sum": { $toDouble: { input: "$paidAmount", onError: 0 } } }
                                     }}
                                   ])
     .then(documents=>{

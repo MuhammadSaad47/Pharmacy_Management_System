@@ -29,9 +29,15 @@ export class BillItemComponent implements OnInit {
   paidAmount: number;
   balance: number;
   dataArray: Array<any> =[];
+  barcode: string = '';
+  barcodeReady: boolean = false;
+  barcodeSuccess: string = '';
+  barcodeError: string = '';
 
   isLoading= false;
   private inventorySubs: Subscription;
+  lastAutoAddedId: string | null = null;
+  lastAutoAddedValue: string = '';
 
 
   constructor(private inventoryInteractionService: InventoryInteractionService, private salesInteractionService:SalesInteractionService , private snackbar : MatSnackBar ) {
@@ -165,6 +171,121 @@ export class BillItemComponent implements OnInit {
 //   this.form.reset();
 // }
 
+  onSearchEnter() {
+    if (!this.searchTerm) {
+      this.barcodeError = 'Please enter a name or barcode.';
+      this.barcodeSuccess = '';
+      return;
+    }
+    this.barcodeError = '';
+    this.barcodeSuccess = '';
 
+    // If the search term is all digits (likely a barcode), try backend fetch first
+    if (/^[0-9]+$/.test(this.searchTerm.trim())) {
+      fetch(`/api/inventory/barcode/${this.searchTerm.trim()}`)
+        .then(res => {
+          if (!res.ok) throw new Error('');
+          return res.json();
+        })
+        .then(data => {
+          // Add to bill with quantity 1 if not already present
+          const alreadyInBill = this.itemArray.some(item => item[0] === data.id);
+          if (!alreadyInBill) {
+            this.itemArray.push([
+              data.id,
+              data.name,
+              data.expireDate,
+              data.price,
+              1, // quantity
+              data.quantity // realQuantity (stock)
+            ]);
+            this.itemArray = [...this.itemArray];
+            this.dataArray.push([data.name, 1]);
+            this.barcodeSuccess = 'Barcode scanned and item added!';
+          } else {
+            this.barcodeSuccess = 'Item already in bill!';
+          }
+          this.inventorys = [data];
+        })
+        .catch(() => {
+          // If not found by barcode, fallback to name search
+          this.filterByNameOrBarcode();
+        });
+    } else {
+      // If not a barcode, just filter by name/barcode as usual
+      this.filterByNameOrBarcode();
+    }
+  }
+
+  filterByNameOrBarcode() {
+    const filtered = this.inventorys.filter(inventory =>
+      inventory.name.toLowerCase().indexOf(this.searchTerm.toLowerCase()) !== -1 ||
+      (inventory.barcode && inventory.barcode.toLowerCase().indexOf(this.searchTerm.toLowerCase()) !== -1)
+    );
+    this.inventorys = filtered;
+    if (filtered.length === 0) {
+      this.barcodeError = 'No medicine found for this name or barcode.';
+    }
+  }
+
+  onBarcodeButtonClick(searchInput: HTMLInputElement) {
+    this.barcodeReady = true;
+    searchInput.focus();
+  }
+
+  onSearchInputChange(event: any) {
+    const value = event.target.value.trim();
+    if (!value) return;
+    // Find exact match by barcode
+    const matchesByBarcode = this.inventorys.filter(item => item.barcode === value);
+    if (matchesByBarcode.length === 1) {
+      const found = matchesByBarcode[0];
+      if (this.lastAutoAddedId === found.id && this.lastAutoAddedValue === value) return;
+      const alreadyInBill = this.itemArray.some(item => item[0] === found.id);
+      if (!alreadyInBill) {
+        this.itemArray.push([
+          found.id,
+          found.name,
+          found.expireDate,
+          found.price,
+          1, // quantity
+          found.quantity // realQuantity (stock)
+        ]);
+        this.snackbar.open('Item added to bill by barcode!', 'Close', { duration: 1500 });
+      } else {
+        this.snackbar.open(`${found.name} is already in the bill.`, 'Close', { duration: 1500 });
+      }
+      this.lastAutoAddedId = found.id;
+      this.lastAutoAddedValue = value;
+      this.searchTerm = '';
+      return;
+    }
+    // Find exact match by name (case-insensitive)
+    const matchesByName = this.inventorys.filter(item => item.name.toLowerCase() === value.toLowerCase());
+    if (matchesByName.length === 1) {
+      const found = matchesByName[0];
+      if (this.lastAutoAddedId === found.id && this.lastAutoAddedValue === value) return;
+      const alreadyInBill = this.itemArray.some(item => item[0] === found.id);
+      if (!alreadyInBill) {
+        this.itemArray.push([
+          found.id,
+          found.name,
+          found.expireDate,
+          found.price,
+          1, // quantity
+          found.quantity // realQuantity (stock)
+        ]);
+        this.snackbar.open('Item added to bill by name!', 'Close', { duration: 1500 });
+      } else {
+        this.snackbar.open(`${found.name} is already in the bill.`, 'Close', { duration: 1500 });
+      }
+      this.lastAutoAddedId = found.id;
+      this.lastAutoAddedValue = value;
+      this.searchTerm = '';
+      return;
+    }
+    this.lastAutoAddedId = null;
+    this.lastAutoAddedValue = '';
+  }
 
 }

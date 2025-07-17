@@ -1,0 +1,22 @@
+/* Barcode input styling */
+.field.has-addons.is-full input.input[placeholder="Scan or enter barcode"] {
+  border: 2px solid #209cee;
+  font-weight: bold;
+  background: #f0f8ff;
+}
+
+.notification.is-success.is-light {
+  background-color: #e6ffed;
+  color: #257942;
+  border: 1px solid #b6f2c8;
+}
+
+.notification.is-danger.is-light {
+  background-color: #ffeaea;
+  color: #a94442;
+  border: 1px solid #f5c6cb;
+}
+
+.button.is-info.is-loading::after {
+  border-color: #209cee transparent #209cee transparent !important;
+}

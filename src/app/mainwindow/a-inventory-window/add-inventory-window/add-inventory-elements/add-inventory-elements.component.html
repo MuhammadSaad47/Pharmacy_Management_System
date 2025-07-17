@@ -45,6 +45,12 @@
     </div>
 
     <div class="field">
+      <label class="label">BARCODE</label>
+      <input type="text" class="is-center input" formControlName="barcode" style="width: 100%;" placeholder="Scan or enter barcode" />
+      <p class="login-error" *ngIf="form.get('barcode').invalid && form.get('barcode').touched">Please enter a valid barcode</p>
+    </div>
+
+    <div class="field">
       <label class="label">DRUG IMAGE</label>
       <div class="file has-name is-full">
         <label class="file-label">

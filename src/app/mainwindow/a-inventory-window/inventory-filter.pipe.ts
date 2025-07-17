@@ -14,6 +14,8 @@ export class InventoryFilterPipe implements PipeTransform{
     }
 
     return inventorys.filter( inventory =>
-      inventory.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
+      inventory.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
+      (inventory.barcode && inventory.barcode.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1)
+    );
   }
 }

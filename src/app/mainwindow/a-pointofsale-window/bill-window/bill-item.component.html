@@ -1,0 +1,44 @@
+<section class="panel">
+    <p class="panel-heading" style="background-color:hsl(0, 0%, 88%) ;color:hsl(0, 0%, 21%)">
+      Scan Barcode
+    </p>
+    <div class="panel-block ">
+      <div style="height: 50px; width: 100%;">
+        <div class="field has-addons is-full" >
+          <div class="control is-full" style="width: 100%;">
+            <input #barcodeInput class="input" type="text" placeholder="Scan or enter barcode" [(ngModel)]="barcodeSearchTerm" (input)="onBarcodeInputChange($event)">
+          </div>
+          <div class="control">
+            <a class="button is-info" (click)="onBarcodeSearchEnter()">
+              <span class="icon">
+                <i class="fas fa-barcode"></i>
+              </span>
+              Scan/Add
+            </a>
+          </div>
+        </div>
+        <div *ngIf="barcodeSearchSuccess" class="notification is-success is-light" style="margin-top:5px;">{{ barcodeSearchSuccess }}</div>
+        <div *ngIf="barcodeSearchError" class="notification is-danger is-light" style="margin-top:5px;">{{ barcodeSearchError }}</div>
+      </div>
+    </div>
+    <br>
+    <p class="panel-heading" style="background-color:hsl(0, 0%, 88%) ;color:hsl(0, 0%, 21%)">
+      Search Drugs
+    </p>
+    <div class="panel-block ">
+      <div  style="height: 50px; width: 100%;">
+        <div class="field has-addons is-full" >
+          <div class="control is-full" style="width: 100%;">
+            <input #searchInput class="input" type="text" placeholder="Find drugs by name" [(ngModel)]="searchTerm" (input)="onNameInputChange($event)">
+          </div>
+          <div class="control">
+            <a class="button is-primary" (click)="onSearchEnter()">
+              Search
+            </a>
+          </div>
+        </div>
+        <div *ngIf="barcodeSuccess" class="notification is-success is-light" style="margin-top:5px;">{{ barcodeSuccess }}</div>
+        <div *ngIf="barcodeError" class="notification is-danger is-light" style="margin-top:5px;">{{ barcodeError }}</div>
+      </div>
+    </div>
+</section> 

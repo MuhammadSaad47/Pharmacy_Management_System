@@ -1,4 +1,3 @@
-
 <section class="panel">
   <p class="panel-heading" style="background-color:hsl(0, 0%, 88%) ;color:hsl(0, 0%, 21%)">
     Search Drugs
@@ -6,12 +5,33 @@
   <div class="panel-block ">
     <div  style="height: 50px; width: 100%;">
 
-      <div class="field has-addons is-full" >
+      <!-- Barcode input section -->
+      <div class="field has-addons is-full" style="margin-bottom: 10px;">
         <div class="control is-full" style="width: 100%;">
-          <input class="input" type="text" placeholder="Find drugs">
+          <input #barcodeInputRef class="input" type="text" placeholder="Scan or enter barcode" [(ngModel)]="barcode" (input)="onBarcodeInputChange($event)">
         </div>
         <div class="control">
-          <a class="button is-primary">
+          <a class="button is-info" (click)="onBarcodeInput()" [class.is-loading]="loading">
+            <span class="icon">
+              <i class="fas fa-barcode"></i>
+            </span>
+            Scan/Add
+          </a>
+        </div>
+      </div>
+      <div *ngIf="error" class="notification is-danger is-light">{{ error }}</div>
+      <div *ngIf="success" class="notification is-success is-light">{{ success }}</div>
+      <div *ngIf="scannedItem" class="notification is-success is-light">
+        <strong>Scanned Item:</strong> {{ scannedItem.name }} ({{ scannedItem.price }})
+      </div>
+
+      <!-- Existing search input -->
+      <div class="field has-addons is-full" >
+        <div class="control is-full" style="width: 100%;">
+          <input class="input" type="text" placeholder="Find drugs by name or barcode" [(ngModel)]="searchTerm" (input)="onNameOrBarcodeInputChange($event)">
+        </div>
+        <div class="control">
+          <a class="button is-primary" (click)="onNameOrBarcodeInputChange({ target: { value: searchTerm } })">
             Search
           </a>
         </div>

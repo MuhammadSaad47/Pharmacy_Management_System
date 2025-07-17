@@ -29,7 +29,8 @@ const storage =multer.diskStorage({
 
 
 router.post("",multer({storage: storage}).single("image"),(req,res,next)=>{
-  const url =req.protocol + '://' + req.get("host");
+  const url = req.protocol + '://' + req.get("host");
+  const imagePath = req.file ? url + "/images/" + req.file.filename : null;
   const inventory = new Inventory({
     email: req.body.email,
     name: req.body.name,
@@ -37,17 +38,21 @@ router.post("",multer({storage: storage}).single("image"),(req,res,next)=>{
     batchId: req.body.batchId,
     expireDate: req.body.expireDate,
     price: req.body.price,
-    imagePath : url + "/images/" + req.file.filename
-    });
+    barcode: req.body.barcode,
+    imagePath: imagePath
+  });
   inventory.save().then(createdInventory=>{
   res.status(201).json({
       message:'Inventory Added Successfully',
       inventory: {
-        ...createdInventory,
+        ...createdInventory._doc,
         id : createdInventory._id
 
       }
       });
+  }).catch(err => {
+    console.error('Add inventory error:', err);
+    res.status(500).json({ error: err, message: err.message || 'Failed to add inventory' });
   });
 });
 
@@ -67,6 +72,7 @@ router.put("/:id",multer({storage: storage}).single("image"), (req,res,next)=>{
     batchId: req.body.batchId,
     expireDate:new Date(req.body.expireDate),
     price: req.body.price,
+    barcode: req.body.barcode,
     imagePath: imagePath
   });
   console.log(inventory);
@@ -401,5 +407,19 @@ async function sendmailOutOfStock(user, callback) {
 
   callback(info);
 }
+
+// Barcode lookup endpoint
+router.get("/barcode/:barcode", (req, res, next) => {
+  Inventory.findOne({ barcode: req.params.barcode })
+    .then(item => {
+      if (!item) {
+        return res.status(404).json({ message: "Item not found for this barcode" });
+      }
+      res.status(200).json(item);
+    })
+    .catch(err => {
+      res.status(500).json({ error: err, message: err.message || 'Failed to fetch item by barcode' });
+    });
+});
 
 module.exports = router;

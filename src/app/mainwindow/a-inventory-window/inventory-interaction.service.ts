@@ -5,7 +5,7 @@ import { Inventory } from './inventory.model';
 import { Subject } from 'rxjs';
 
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 const InventorySchema = '../../../../backend/models/inventory.js';
@@ -54,7 +54,8 @@ export class InventoryInteractionService {
         expireDate: inventory.expireDate,
         price: inventory.price,
         id: inventory._id,
-        imagePath:  inventory.imagePath
+        imagePath:  inventory.imagePath,
+        barcode: inventory.barcode
        }
      })
     }))
@@ -79,7 +80,8 @@ export class InventoryInteractionService {
         expireDate: new Date(inventory.expireDate),
         price: inventory.price,
         id: inventory._id,
-        imagePath:  inventory.imagePath
+        imagePath:  inventory.imagePath,
+        barcode: inventory.barcode
        }
      })
     }))
@@ -103,7 +105,8 @@ export class InventoryInteractionService {
         expireDate: new Date(inventory.expireDate),
         price: inventory.price,
         id: inventory._id,
-        imagePath:  inventory.imagePath
+        imagePath:  inventory.imagePath,
+        barcode: inventory.barcode
        }
      })
     }))
@@ -126,7 +129,8 @@ export class InventoryInteractionService {
         expireDate:new Date(inventory.expireDate),
         price: inventory.price,
         id: inventory._id,
-        imagePath:  inventory.imagePath
+        imagePath:  inventory.imagePath,
+        barcode: inventory.barcode
        }
      })
     }))
@@ -150,8 +154,8 @@ export class InventoryInteractionService {
         expireDate:new Date(inventory.expireDate),
         price: inventory.price,
         id: inventory._id,
-        imagePath:  inventory.imagePath
-
+        imagePath:  inventory.imagePath,
+        barcode: inventory.barcode
        }
      })
     }))
@@ -206,11 +210,11 @@ export class InventoryInteractionService {
   }
 
   getInventorys(id: string){
-    return this.http.get<{_id: string, email: string  , name: string, quantity: string, batchId: string, expireDate: string, price:string ,imagePath:string}>
+    return this.http.get<{_id: string, email: string  , name: string, quantity: string, batchId: string, expireDate: string, price:string ,barcode:string, imagePath:string}>
     ('http://localhost:3000/api/inventory/' + id);
   }
 
-  addInventory( email: string, name: string, quantity: string, batchId: string, expireDate: string, price: string , image: File) {
+  addInventory( email: string, name: string, quantity: string, batchId: string, expireDate: string, price: string, barcode: string, image: File) {
     const inventoryData = new FormData();
     inventoryData.append("email", email);
     inventoryData.append("name", name);
@@ -218,69 +222,77 @@ export class InventoryInteractionService {
     inventoryData.append("batchId", batchId);
     inventoryData.append("expireDate", expireDate);
     inventoryData.append("price", price);
+    inventoryData.append("barcode", barcode);
     inventoryData.append("image", image, name);
 
-    this.http.post<{message: string, inventory: Inventory}>('http://localhost:3000/api/inventory',inventoryData)
-    .subscribe((responseData)=>{
-      const inventory: Inventory ={id: responseData.inventory.id,
-                                   email:email ,
-                                   name:name ,
-                                   quantity: quantity,
-                                   batchId: batchId ,
-                                   expireDate: expireDate ,
-                                   price: price,
-                                   imagePath : responseData.inventory.imagePath};
-
+    this.http.post<{message: string, inventory: Inventory}>(
+      'http://localhost:3000/api/inventory',
+      inventoryData
+    )
+    .subscribe((responseData) => {
+      const inventory: Inventory = {
+        id: responseData.inventory.id,
+        email: email,
+        name: name,
+        quantity: quantity,
+        batchId: batchId,
+        expireDate: expireDate,
+        price: price,
+        barcode: barcode,
+        imagePath: responseData.inventory.imagePath
+      };
       this.inventory.push(inventory);
       this.inventoryUpdated.next([...this.inventory]);
       this.router.navigate(["/inventory/create"]);
     });
-
   }
 
-  updateInventory(id: string , email: string ,name: string, quantity: string, batchId: string, expireDate: string, price: string ,image: File | string){
-
+  updateInventory(id: string, email: string, name: string, quantity: string, batchId: string, expireDate: string, price: string, barcode: string, image: File | string) {
     let inventoryData: Inventory | FormData;
-
-    if (typeof(image)==='object'){
+    if (typeof image === 'object') {
       inventoryData = new FormData();
       inventoryData.append("id", id);
-      inventoryData.append("email",email);
-      inventoryData.append("name",name);
-      inventoryData.append("quantity",quantity);
-      inventoryData.append("batchId",batchId);
-      inventoryData.append("expireDate",expireDate);
-      inventoryData.append("price",price);
+      inventoryData.append("email", email);
+      inventoryData.append("name", name);
+      inventoryData.append("quantity", quantity);
+      inventoryData.append("batchId", batchId);
+      inventoryData.append("expireDate", expireDate);
+      inventoryData.append("price", price);
+      inventoryData.append("barcode", barcode);
       inventoryData.append("image", image, name);
-
-    } else{
-       inventoryData  ={id : id ,
-                        email : email ,
-                        name : name ,
-                        quantity : quantity ,
-                        batchId : batchId ,
-                        expireDate : expireDate ,
-                        price: price,
-                        imagePath: image};
+    } else {
+      inventoryData = {
+        id: id,
+        email: email,
+        name: name,
+        quantity: quantity,
+        batchId: batchId,
+        expireDate: expireDate,
+        price: price,
+        barcode: barcode,
+        imagePath: image as string
+      };
     }
     this.http
-             .put('http://localhost:3000/api/inventory/' + id , inventoryData)
-             .subscribe(response => {
-               const updatedInventorys = [...this.inventory];
-               const oldInventoryIndex = updatedInventorys.findIndex(i => i.id === id);
-
-               const inventory : Inventory ={id : id ,
-                                             email : email ,
-                                             name : name ,
-                                             quantity : quantity ,
-                                             batchId : batchId ,
-                                             expireDate : expireDate ,
-                                             price: price,
-                                             imagePath: " "};
-               updatedInventorys[oldInventoryIndex] = inventory;
-               this.inventoryUpdated.next([...this.inventory]);
-               this.router.navigate(["/inventory/create"]);
-             });
+      .put('http://localhost:3000/api/inventory/' + id, inventoryData)
+      .subscribe((response) => {
+        const updatedInventorys = [...this.inventory];
+        const oldInventoryIndex = updatedInventorys.findIndex(i => i.id === id);
+        const inventory: Inventory = {
+          id: id,
+          email: email,
+          name: name,
+          quantity: quantity,
+          batchId: batchId,
+          expireDate: expireDate,
+          price: price,
+          barcode: barcode,
+          imagePath: typeof image === 'string' ? image : ''
+        };
+        updatedInventorys[oldInventoryIndex] = inventory;
+        this.inventoryUpdated.next([...this.inventory]);
+        this.router.navigate(["/inventory/create"]);
+      });
   }
 
 
@@ -304,5 +316,19 @@ export class InventoryInteractionService {
         this.inventory = inventoryUpdated;
         this.inventoryUpdated.next([...this.inventory])
       });
+  }
+
+  getMedicineByBarcode(barcode: string) {
+    return this.http.get<any>(`http://localhost:3000/api/inventory/barcode/${barcode}`)
+      .pipe(
+        map(data => {
+          console.log('Barcode API response:', data);
+          return data;
+        }),
+        catchError(err => {
+          console.log('Barcode fetch error:', err);
+          throw new Error('Error fetching item');
+        })
+      );
   }
 }

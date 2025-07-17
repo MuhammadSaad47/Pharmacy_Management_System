@@ -25,6 +25,7 @@ router.post("/signup", (req,res,next)=>{
         })
 
         .catch(err =>{
+          console.error('Signup error:', err);
           res.status(500).json({
             error :err
           });

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { BillService } from '../bill.service';
 
 @Component({
   selector: 'app-bill-window',
@@ -6,10 +7,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./bill-window.component.css']
 })
 export class BillWindowComponent implements OnInit {
+  items: any[] = [];
 
-  constructor() { }
+  constructor(private billService: BillService) { }
 
   ngOnInit() {
+    this.billService.getItems().subscribe(items => {
+      this.items = items;
+    });
   }
-
 }
