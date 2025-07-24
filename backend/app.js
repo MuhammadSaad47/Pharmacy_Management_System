@@ -1,6 +1,5 @@
 const path = require("path");
 const express = require('express');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const app = express();
@@ -24,24 +23,15 @@ mongoose.connect('mongodb://localhost:27017/pharmacy', {
 .catch(() => {
   console.log('connection failed!');
 });
-mongoose.set('useCreateIndex', true);
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use("/images", express.static(path.join("images")));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With ,Content-Type,Authorization ,Accept",
-    "HTTP/1.1 200 OK",
-    "append,delete,entries,foreach,get,has,keys,set,values,Authorization"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,POST,PATCH,DELETE,OPTIONS,PUT"
-  );
+  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Authorization, Accept");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS, PUT");
   next();
 });
 
@@ -54,7 +44,6 @@ app.use("/api/doctorOder", doctorOderRoutes);
 app.use("/api/verifiedDoctorOder", verifiedDoctorOderRoutes);
 app.use("/api/pickedUpOders", pickedUpOdersRoutes);
 
-module.exports = app;
 // Error handling middleware to log backend errors
 app.use((error, req, res, next) => {
   console.error('❌ ERROR:', error.message);
@@ -63,3 +52,5 @@ app.use((error, req, res, next) => {
     error: error
   });
 });
+
+module.exports = app;
