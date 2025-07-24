@@ -42,8 +42,15 @@ export class AuthService{
     this.http.post("http://localhost:3000/api/user/signup",authData)
       .subscribe(response =>{
         console.log(response);
+        this.snackBar.open("User created successfully!", 'Close', { duration: 3000 });
+        this.router.navigate(['/login']);
+      }, error => {
+        if (error.status === 409) {
+          this.snackBar.open(error.error.message, 'Close', { duration: 3000 });
+        } else {
+          this.snackBar.open("An unknown error occurred!", 'Close', { duration: 3000 });
+        }
       });
-
   }
 
   login(email: string, password){
@@ -70,6 +77,8 @@ export class AuthService{
           this.router.navigate(['/']);
           // this.headerUserdetailsComponent.onViewUserEmail(email);
         }
+      }, error => {
+        this.snackBar.open(error.error.message, 'Close', { duration: 3000 });
       });
   }
 

@@ -24,7 +24,7 @@ mongoose.connect('mongodb://localhost:27017/pharmacy', {
 .catch(() => {
   console.log('connection failed!');
 });
-mongoose.set('useCreateIndex', true);
+// mongoose.set('useCreateIndex', true); // Removed for Mongoose 7+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
